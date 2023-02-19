@@ -14,4 +14,56 @@ export class App extends Component {
     ],
     filter: '',
   };
+
+  addContact = contact => {
+    const isIncontacts = this.state.contacts.some(
+      ({ name }) => name.toLowerCase() === contact.name.toLowerCase()
+    );
+    if (isIncontacts) {
+      alert(`${contact.name} is already in contacts.`);
+      return;
+    }
+    this.setState(prevState => ({
+      contacts: [{ id: nanoid(), ...contact }, ...prevState.contacts],
+    }));
+  };
+
+  filterContacts = event => {
+    this.setState({ filter: event.currentTarget.value });
+  };
+
+  getContacts = () => {
+    const { contacts, filter } = this.state;
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  };
+
+  removeContacts = contactId => {
+    this.setState(prevState => {
+      return {
+        contacts: prevState.contacts.filter(contact => {
+          return contact.id !== contactId;
+        }),
+      };
+    });
+  };
+
+  render() {
+    const { filter } = this.state;
+    const visibleContacts = this.getContacts();
+    return (
+      <div style={{ margin: '0 auto', width: '333px'}}>
+        <h1>Phonebook</h1>
+        <ContactForm onSubmit={this.addContact} />
+        <h2>Contacts </h2>
+        <Filter value={filter} onChange={this.filterContacts} />
+        <ContactList
+          contacts={visibleContacts}
+          onRemoveContact={this.removeContacts}
+        />
+      </div>
+    );
+  }
 }
